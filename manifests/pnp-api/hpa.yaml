@@ -1,0 +1,26 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pnp-api
+  namespace: pnp
+spec:
+  # o HPA aponta para o Deployment que vai escalar
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pnp-api
+
+  # limites de réplicas — o HPA nunca passa desses valores
+  minReplicas: 2
+  maxReplicas: 6
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          # quando a média de CPU dos Pods ultrapassar 50% do request declarado
+          # o HPA começa a escalar para cima
+          # nosso request é 100m → 50% = 50m de CPU por Pod
+          averageUtilization: 50

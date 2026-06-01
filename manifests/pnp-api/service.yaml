@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pnp-api
+  namespace: pnp
+  labels:
+    app: pnp-api
+spec:
+  # ClusterIP = IP virtual interno ao cluster, só acessível de dentro
+  # para expor fora usaremos port-forward nos testes (sem precisar de Ingress ainda)
+  type: ClusterIP
+
+  # o Service encontra os Pods por esse label
+  # qualquer Pod com app=pnp-api entra no pool de balanceamento
+  selector:
+    app: pnp-api
+
+  ports:
+    - name: http
+      port: 80          # porta que o Service expõe internamente
+      targetPort: 8000  # porta real do container
+      protocol: TCP

@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pnp-api
+  namespace: pnp
+  labels:
+    app: pnp-api
+spec:
+  # quantas réplicas do Pod você quer rodando
+  # o ReplicaSet vai garantir esse número o tempo todo
+  replicas: 3
+
+  # o Deployment usa esse selector para saber quais Pods ele gerencia
+  # DEVE ser igual ao template.metadata.labels abaixo
+  selector:
+    matchLabels:
+      app: pnp-api
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # durante o rollout: quantos Pods podem ficar indisponíveis
+      maxUnavailable: 1
+      # durante o rollout: quantos Pods extras podem existir
+      maxSurge: 1
+
+  template:
+    # tudo a partir daqui é a definição do Pod
+    metadata:
+      labels:
+        app: pnp-api  # deve bater com o selector acima
+    spec:
+      containers:
+        - name: pnp-api
+          # imagem local carregada via kind load (veja README)
+          image: pnp-api:latest
+          # Never = nunca tenta puxar do registry (usamos imagem local no kind)
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+
+          # injeta o nome do Pod e namespace como variáveis de ambiente
+          # a app usa isso para mostrar QUAL Pod respondeu — útil nos testes
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+          # recursos: fundamental para o HPA funcionar
+          # sem requests declarados, o HPA não consegue calcular % de uso
+          resources:
+            requests:
+              cpu: "100m"      # 0.1 core — baseline garantido
+              memory: "64Mi"
+            limits:
+              cpu: "500m"      # 0.5 core — teto máximo
+              memory: "128Mi"
+
+          # livenessProbe: K8s reinicia o Pod se esse endpoint falhar
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          # readinessProbe: K8s só manda tráfego quando esse endpoint responder
+          # durante rollout, o Pod novo só entra quando estiver "ready"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5

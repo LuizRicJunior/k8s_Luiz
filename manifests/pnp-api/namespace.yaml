@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pnp
+  labels:
+    # labels no namespace permitem políticas futuras (NetworkPolicy, Rancher projects)
+    env: hml
+    team: sre
