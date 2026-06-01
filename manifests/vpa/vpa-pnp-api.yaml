@@ -1,0 +1,31 @@
+# VPA object para a pnp-api.
+#
+# updateMode: Off → o VPA apenas observa e recomenda.
+# Não reinicia nenhum Pod, não altera nenhum resource.
+# É o modo seguro para aprender e coletar dados reais.
+#
+# Após alguns minutos com carga, o VPA vai popular o campo
+# status.recommendation com os valores ideais de requests/limits.
+#
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: pnp-api-vpa
+  namespace: pnp
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pnp-api
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: pnp-api
+        # faixa de valores que o VPA pode recomendar
+        minAllowed:
+          cpu: 50m
+          memory: 32Mi
+        maxAllowed:
+          cpu: 1000m
+          memory: 512Mi

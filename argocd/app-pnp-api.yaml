@@ -1,0 +1,34 @@
+# Application é o objeto central do ArgoCD.
+# Ele conecta um repo Git a um destino no cluster.
+#
+# IMPORTANTE: substitua o campo repoURL pela URL do seu repo no GitHub.
+#
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pnp-api
+  # todo objeto do ArgoCD vive no namespace argocd
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    # troque pela URL do seu repo
+    repoURL: https://github.com/LuizRicJunior/k8s_Luiz.git
+    targetRevision: main
+    # path dentro do repo que o ArgoCD vai observar
+    path: manifests/pnp-api
+
+  destination:
+    # https://kubernetes.default.svc = o próprio cluster onde o ArgoCD está
+    server: https://kubernetes.default.svc
+    namespace: pnp
+
+  syncPolicy:
+    automated:
+      # se alguém fizer kubectl apply na mão e divergir do Git, ArgoCD corrige
+      selfHeal: true
+      # cria namespaces automaticamente se não existirem
+      prune: true
+    syncOptions:
+      - CreateNamespace=true

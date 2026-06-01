@@ -1,0 +1,26 @@
+# Goldilocks é instalado via Helm — não tem um manifest estático oficial.
+# Esse arquivo documenta os comandos e cria o label no namespace pnp
+# que ativa o Goldilocks para aquele namespace.
+#
+# INSTALAÇÃO (rode uma vez):
+#
+#   helm repo add fairwinds-stable https://charts.fairwinds.com/stable
+#   helm repo update
+#   helm install goldilocks fairwinds-stable/goldilocks \
+#     --namespace goldilocks \
+#     --create-namespace
+#
+# Após instalar, aplique este arquivo para habilitar o namespace pnp:
+#
+#   kubectl apply -f manifests/vpa/goldilocks-namespace.yaml
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pnp
+  labels:
+    # esse label é o que o Goldilocks usa para saber
+    # quais namespaces ele deve monitorar
+    goldilocks.fairwinds.com/enabled: "true"
+    env: hml
+    team: sre
