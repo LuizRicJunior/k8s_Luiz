@@ -8,7 +8,7 @@ metadata:
 spec:
   # quantas réplicas do Pod você quer rodando
   # o ReplicaSet vai garantir esse número o tempo todo
-  replicas: 3
+  replicas: 1
 
   # o Deployment usa esse selector para saber quais Pods ele gerencia
   # DEVE ser igual ao template.metadata.labels abaixo
