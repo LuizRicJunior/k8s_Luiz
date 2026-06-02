@@ -1,0 +1,34 @@
+# Ingress roteia tráfego HTTP externo para o Service interno.
+#
+# Com o ingress-nginx instalado e as portas mapeadas no kind,
+# o fluxo é:
+#
+#   seu Mac :80 → node control-plane :80 → ingress-nginx Pod
+#   → Service pnp-api → Pods pnp-api
+#
+# Para acessar, adicione ao /etc/hosts do seu Mac:
+#   127.0.0.1  pnp.local
+#
+# Depois acesse: http://pnp.local
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pnp-api
+  namespace: pnp
+  annotations:
+    # indica que o ingress-nginx é o controller responsável
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: pnp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pnp-api
+                port:
+                  number: 80
