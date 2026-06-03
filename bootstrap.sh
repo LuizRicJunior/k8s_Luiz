@@ -28,7 +28,7 @@ fi
 
 # ── 1. cria o cluster com port mappings para ingress ────────────────────────
 echo "→ Criando cluster kind com port mappings..."
-kind create cluster --name "${CLUSTER_NAME}" --config kind/cluster.yaml
+kind create cluster --name "${CLUSTER_NAME}" --config kind/kind-config.yaml
 echo "✓ Cluster criado"
 
 # ── 2. build e load da imagem da app ────────────────────────────────────────
@@ -50,7 +50,7 @@ echo "✓ ingress-nginx pronto"
 # ── 4. ArgoCD ────────────────────────────────────────────────────────────────
 echo "→ Instalando ArgoCD..."
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f argocd/install.yaml --server-side --force-conflicts
+kubectl apply -f argocd/install.yaml --server-side --force-conflicts -n argocd
 echo "→ Aguardando ArgoCD ficar Ready (pode demorar 2-3 min)..."
 kubectl wait --namespace argocd \
   --for=condition=available deployment/argocd-server \
